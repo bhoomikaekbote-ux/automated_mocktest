@@ -62,13 +62,13 @@ else:
 
 education_filter = st.sidebar.multiselect(
     "Parental Education",
-    options=df["Parental_Education_Level"].unique(),
-    default=df["Parental_Education_Level"].unique()
+    options=df["parental level of education"].unique(),
+    default=df["parental level of education"].unique()
 )
 
 filtered_df = df[
     (df["gender"].isin(gender_filter)) &
-    (df["Parental_Education_Level"].isin(education_filter))
+    (df["parental level of education"].isin(education_filter))
 ]
 
 # ---------------- TITLE ----------------
