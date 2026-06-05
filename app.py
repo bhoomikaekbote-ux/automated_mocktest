@@ -15,26 +15,41 @@ st.set_page_config(
 )
 
 # ---------------- LOAD DATA ----------------
+if os.path.exists("student_exam_performance.csv"):
+    try:
+        df = pd.read_csv("student_exam_performance.csv")
 
-@st.cache_data
-def load_data():
+        st.dataframe(df)
 
-    files = os.listdir(".")
+        st.write("Display the column names:")
+        st.write(df.columns)
 
-    csv_files = [f for f in files if f.endswith(".csv")]
+    except Exception as e:
+        st.error(f"Error reading file: {e}")
 
-    if len(csv_files) == 0:
-        st.error("No CSV file found in repository folder.")
-        st.write("Files detected:", files)
-        st.stop()
+else:
+    st.error("Dataset file not found")
 
-    file_name = csv_files[0]
 
-    st.sidebar.success(f"Loaded Dataset: {file_name}")
+# @st.cache_data
+# def load_data():
 
-    df = pd.read_csv(file_name)
+#     files = os.listdir(".")
 
-    return df
+#     csv_files = [f for f in files if f.endswith(".csv")]
+
+#     if len(csv_files) == 0:
+#         st.error("No CSV file found in repository folder.")
+#         st.write("Files detected:", files)
+#         st.stop()
+
+#     file_name = csv_files[0]
+
+#     st.sidebar.success(f"Loaded Dataset: {file_name}")
+
+#     df = pd.read_csv(file_name)
+
+#     return df
 
 
 df = load_data()
