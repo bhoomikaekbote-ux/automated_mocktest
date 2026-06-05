@@ -47,7 +47,7 @@ df.columns = df.columns.str.strip()
 st.write("Columns:", df.columns.tolist())
 
 # Check if gender column exists
-if "gender" in df.columns:
+if "Gender" in df.columns:
 
     st.sidebar.title("Dashboard Filters")
 
