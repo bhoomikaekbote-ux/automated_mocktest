@@ -34,11 +34,31 @@ else:
 
 st.sidebar.title("Dashboard Filters")
 
-gender_filter = st.sidebar.multiselect(
-    "Gender",
-    options=df["gender"].unique(),
-    default=df["gender"].unique()
-)
+# gender_filter = st.sidebar.multiselect(
+#     "Gender",
+#     options=df["gender"].unique(),
+#     default=df["gender"].unique()
+# )
+
+# Remove extra spaces from column names
+df.columns = df.columns.str.strip()
+
+# Show columns for debugging
+st.write("Columns:", df.columns.tolist())
+
+# Check if gender column exists
+if "gender" in df.columns:
+
+    st.sidebar.title("Dashboard Filters")
+
+    gender_filter = st.sidebar.multiselect(
+        "Gender",
+        options=df["gender"].unique(),
+        default=df["gender"].unique()
+    )
+
+else:
+    st.error("Column 'gender' not found in dataset")
 
 education_filter = st.sidebar.multiselect(
     "Parental Education",
