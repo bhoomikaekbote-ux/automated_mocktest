@@ -51,7 +51,7 @@ else:
 #     return df
 
 
-df = load_data()
+# df = load_data()
 
 # ---------------- SIDEBAR ----------------
 
