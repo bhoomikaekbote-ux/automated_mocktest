@@ -62,8 +62,8 @@ else:
 
 education_filter = st.sidebar.multiselect(
     "Parental Education",
-    options=df["parental level of education"].unique(),
-    default=df["parental level of education"].unique()
+    options=df["Parental_Education_Level"].unique(),
+    default=df["Parental_Education_Level"].unique()
 )
 
 filtered_df = df[
