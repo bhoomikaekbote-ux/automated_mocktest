@@ -53,8 +53,8 @@ if "gender" in df.columns:
 
     gender_filter = st.sidebar.multiselect(
         "Gender",
-        options=df["gender"].unique(),
-        default=df["gender"].unique()
+        options=df["Gender"].unique(),
+        default=df["Gender"].unique()
     )
 
 else:
