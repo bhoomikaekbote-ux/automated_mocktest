@@ -1,63 +1,251 @@
 ```python
 import streamlit as st
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 import os
+import numpy as np
+
+# ---------------- PAGE CONFIG ----------------
 
 st.set_page_config(
-    page_title="Student Analytics Dashboard",
+    page_title="Student Performance Analytics",
+    page_icon="📊",
     layout="wide"
 )
+
+# ---------------- LOAD DATA ----------------
 
 @st.cache_data
 def load_data():
 
     files = os.listdir(".")
 
-    st.sidebar.write("Repository Files:")
-    st.sidebar.write(files)
+    csv_files = [f for f in files if f.endswith(".csv")]
 
-    csv_file = None
-
-    for file in files:
-        if file.endswith(".csv"):
-            csv_file = file
-            break
-
-    if csv_file is None:
-        st.error("No CSV file found in repository folder")
-        st.write("Current files:", files)
+    if len(csv_files) == 0:
+        st.error("No CSV file found in repository folder.")
+        st.write("Files detected:", files)
         st.stop()
 
-    st.success(f"Loaded file: {csv_file}")
+    file_name = csv_files[0]
 
-    df = pd.read_csv(csv_file)
+    st.sidebar.success(f"Loaded Dataset: {file_name}")
+
+    df = pd.read_csv(file_name)
 
     return df
 
+
 df = load_data()
 
-st.title("📊 Student Performance Dashboard")
+# ---------------- SIDEBAR ----------------
 
-col1, col2, col3 = st.columns(3)
+st.sidebar.title("Dashboard Filters")
 
-col1.metric(
-    "Average Math",
-    round(df["math score"].mean(), 2)
+gender_filter = st.sidebar.multiselect(
+    "Gender",
+    options=df["gender"].unique(),
+    default=df["gender"].unique()
 )
 
-col2.metric(
-    "Average Reading",
-    round(df["reading score"].mean(), 2)
+education_filter = st.sidebar.multiselect(
+    "Parental Education",
+    options=df["parental level of education"].unique(),
+    default=df["parental level of education"].unique()
 )
 
-col3.metric(
-    "Average Writing",
-    round(df["writing score"].mean(), 2)
+filtered_df = df[
+    (df["gender"].isin(gender_filter)) &
+    (df["parental level of education"].isin(education_filter))
+]
+
+# ---------------- TITLE ----------------
+
+st.title("📊 Student Exam Analytics Dashboard")
+
+st.markdown(
+    "Interactive dashboard for deep analytics and insights"
 )
+
+# ---------------- KPI SECTION ----------------
+
+avg_math = round(filtered_df["math score"].mean(), 2)
+avg_reading = round(filtered_df["reading score"].mean(), 2)
+avg_writing = round(filtered_df["writing score"].mean(), 2)
+
+c1, c2, c3, c4 = st.columns(4)
+
+c1.metric("Math Avg", avg_math)
+c2.metric("Reading Avg", avg_reading)
+c3.metric("Writing Avg", avg_writing)
+c4.metric("Students", filtered_df.shape[0])
+
+st.divider()
+
+# ---------------- DATASET PREVIEW ----------------
 
 st.subheader("Dataset Preview")
-st.dataframe(df.head())
 
-st.subheader("Columns")
-st.write(df.columns.tolist())
+st.dataframe(
+    filtered_df.head(10),
+    use_container_width=True
+)
+
+# ---------------- CHARTS ----------------
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    fig_gender = px.pie(
+        filtered_df,
+        names="gender",
+        title="Gender Distribution"
+    )
+
+    st.plotly_chart(
+        fig_gender,
+        use_container_width=True
+    )
+
+with col2:
+
+    fig_lunch = px.bar(
+        filtered_df["lunch"].value_counts(),
+        title="Lunch Distribution"
+    )
+
+    st.plotly_chart(
+        fig_lunch,
+        use_container_width=True
+    )
+
+# Average scores by gender
+
+gender_avg = filtered_df.groupby(
+    "gender"
+)[["math score",
+   "reading score",
+   "writing score"]].mean().reset_index()
+
+fig_scores = px.bar(
+    gender_avg,
+    x="gender",
+    y=[
+        "math score",
+        "reading score",
+        "writing score"
+    ],
+    barmode="group",
+    title="Average Scores by Gender"
+)
+
+st.plotly_chart(
+    fig_scores,
+    use_container_width=True
+)
+
+# Histogram
+
+fig_hist = px.histogram(
+    filtered_df,
+    x="math score",
+    nbins=25,
+    title="Math Score Distribution"
+)
+
+st.plotly_chart(
+    fig_hist,
+    use_container_width=True
+)
+
+# Boxplot
+
+fig_box = px.box(
+    filtered_df,
+    x="parental level of education",
+    y="math score",
+    color="gender",
+    title="Math Score vs Parent Education"
+)
+
+st.plotly_chart(
+    fig_box,
+    use_container_width=True
+)
+
+# Correlation heatmap
+
+corr = filtered_df[
+    ["math score",
+     "reading score",
+     "writing score"]
+].corr()
+
+heatmap = go.Figure(
+    data=go.Heatmap(
+        z=corr.values,
+        x=corr.columns,
+        y=corr.columns,
+        text=np.round(corr.values,2),
+        texttemplate="%{text}"
+    )
+)
+
+heatmap.update_layout(
+    title="Correlation Heatmap"
+)
+
+st.plotly_chart(
+    heatmap,
+    use_container_width=True
+)
+
+# ---------------- INSIGHTS ----------------
+
+st.subheader("Insights")
+
+highest_math = filtered_df["math score"].max()
+lowest_math = filtered_df["math score"].min()
+
+st.success(
+    f"Highest Math Score: {highest_math}"
+)
+
+st.error(
+    f"Lowest Math Score: {lowest_math}"
+)
+
+if avg_math > 65:
+    st.info(
+        "Students perform well in mathematics."
+    )
+else:
+    st.warning(
+        "Mathematics performance needs improvement."
+    )
+
+if avg_reading > avg_writing:
+    st.info(
+        "Reading scores are stronger than writing scores."
+    )
+else:
+    st.info(
+        "Writing scores are stronger than reading scores."
+    )
+
+# ---------------- RAW DATA ----------------
+
+with st.expander("View Full Dataset"):
+
+    st.dataframe(
+        filtered_df,
+        use_container_width=True
+    )
+
+# ---------------- FOOTER ----------------
+
+st.markdown("---")
+st.caption("Built with Streamlit + Plotly")
 ```
