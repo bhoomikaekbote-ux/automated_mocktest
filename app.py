@@ -61,9 +61,9 @@ else:
     st.error("Column 'gender' not found in dataset")
 
 education_filter = st.sidebar.multiselect(
-    "Parental Education",
-    options=df["parental level of education"].unique(),
-    default=df["parental level of education"].unique()
+        "Parental Education",
+        options=df["parental level of education"].unique(),
+        default=df["parental level of education"].unique()
 )
 
 filtered_df = df[
