@@ -30,29 +30,6 @@ else:
     st.error("Dataset file not found")
 
 
-# @st.cache_data
-# def load_data():
-
-#     files = os.listdir(".")
-
-#     csv_files = [f for f in files if f.endswith(".csv")]
-
-#     if len(csv_files) == 0:
-#         st.error("No CSV file found in repository folder.")
-#         st.write("Files detected:", files)
-#         st.stop()
-
-#     file_name = csv_files[0]
-
-#     st.sidebar.success(f"Loaded Dataset: {file_name}")
-
-#     df = pd.read_csv(file_name)
-
-#     return df
-
-
-# df = load_data()
-
 # ---------------- SIDEBAR ----------------
 
 st.sidebar.title("Dashboard Filters")
